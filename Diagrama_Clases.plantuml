@@ -1,0 +1,184 @@
+@startuml
+
+enum EstadoSesion {
+  INICIADA
+  PAUSADA
+  FINALIZADA
+  CANCELADA
+}
+
+enum TipoAnomaliaCardiaca {
+  NORMAL
+  TAQUICARDIA
+  BRADICARDIA
+  ARRITMIA
+  CRITICA
+}
+
+enum NivelRiesgo {
+  BAJO
+  MEDIO
+  ALTO
+  CRITICO
+}
+
+enum TipoAlerta {
+  ANOMALIA_DETECTADA
+  SESION_FINALIZADA
+  PATRON_ANORMAL
+  RIESGO_ELEVADO
+}
+
+enum NivelPrioridad {
+  BAJA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+' Clases con atributos y métodos (tipos simplificados)
+class Paciente {
+  - id : String
+  - nombre : String
+  - edad : int
+  - genero : String
+  - historialMedico : String
+  - fechaRegistro : Date
+  - rangoNormalMin : int
+  - rangoNormalMax : int
+  + constructor(id, nombre, edad, genero, historialMedico)
+  + getId() : String
+  + getNombre() : String
+  + getEdad() : int
+  + getGenero() : String
+  + getHistorialMedico() : String
+  + getFechaRegistro() : Date
+  + setRangoNormal(min, max) : void
+  + getRangoNormal() : String
+  + toString() : String
+}
+
+class MedicionPulsacion {
+  - id : String
+  - pacienteId : String
+  - valor : float
+  - timestamp : Date
+  - sesionId : String
+  - notas : String
+  + constructor(pacienteId, valor, sesionId, notas)
+  + getId() : String
+  + getPacienteId() : String
+  + getValor() : float
+  + getTimestamp() : Date
+  + getSesionId() : String
+  + getNotas() : String
+  + esAnomal(rangoMin, rangoMax) : boolean
+  + toString() : String
+}
+
+class SesionMonitoreo {
+  - id : String
+  - pacienteId : String
+  - fechaInicio : Date
+  - fechaFin : Date
+  - estado : EstadoSesion
+  - duracionMinutos : int
+  - notas : String
+  + constructor(pacienteId, duracionMinutos, notas)
+  + getId() : String
+  + getPacienteId() : String
+  + getFechaInicio() : Date
+  + getFechaFin() : Date
+  + getEstado() : EstadoSesion
+  + getDuracionMinutos() : int
+  + iniciarSesion() : void
+  + pausarSesion() : void
+  + finalizarSesion() : void
+  + estaActiva() : boolean
+  + toString() : String
+}
+
+class AnalizadorPulsaciones {
+  - umbralTaquicardia : int
+  - umbralBradicardia : int
+  + constructor()
+  + analizarMedicion(medicion, paciente) : TipoAnomaliaCardiaca
+  + calcularEstadisticas(mediciones) : String
+  + detectarPatronesAnormales(mediciones) : String
+  + generarRecomendaciones(estadisticas, anomalias) : String[]
+  + evaluarRiesgoCardiovascular(paciente, mediciones) : NivelRiesgo
+}
+
+class GestorReportes {
+  - formatoFecha : String
+  + constructor()
+  + generarReportePaciente(paciente, mediciones, sesiones) : String
+  + generarReporteEstadistico(mediciones, periodo) : String
+  + generarReporteTendencias(mediciones, fechaInicio, fechaFin) : String
+  + exportarDatos(datos, formato) : String
+  + generarAlerta(medicion, tipoAnomaliaCardiaca) : String
+}
+
+class SistemaMonitoreo {
+  - pacientes : Map<String, Paciente>
+  - mediciones : Map<String, MedicionPulsacion[]>
+  - sesiones : Map<String, SesionMonitoreo[]>
+  - analizador : AnalizadorPulsaciones
+  - gestorReportes : GestorReportes
+  + constructor()
+  + registrarPaciente(paciente) : void
+  + obtenerPaciente(id) : Paciente
+  + registrarMedicion(medicion) : void
+  + obtenerMedicionesPaciente(pacienteId) : MedicionPulsacion[]
+  + crearSesionMonitoreo(sesion) : void
+  + obtenerSesionesPaciente(pacienteId) : SesionMonitoreo[]
+  + analizarDatosPaciente(pacienteId) : String
+  + generarReportePaciente(pacienteId) : String
+  + exportarDatosPaciente(pacienteId, formato) : String
+}
+
+class EstadisticasPulsacion {
+  + promedio : float
+  + maximo : float
+  + minimo : float
+  + desviacionEstandar : float
+  + mediana : float
+  + totalMediciones : int
+  + constructor(mediciones)
+  + toString() : String
+}
+
+class Alerta {
+  - id : String
+  - pacienteId : String
+  - tipoAlerta : TipoAlerta
+  - mensaje : String
+  - timestamp : Date
+  - prioridad : NivelPrioridad
+  + constructor(pacienteId, tipoAlerta, mensaje, prioridad)
+  + getId() : String
+  + getPacienteId() : String
+  + getTipoAlerta() : TipoAlerta
+  + getMensaje() : String
+  + getTimestamp() : Date
+  + getPrioridad() : NivelPrioridad
+  + toString() : String
+}
+
+' Relaciones
+Paciente "1" o-- "*" MedicionPulsacion : tiene
+Paciente "1" o-- "*" SesionMonitoreo : participa
+SesionMonitoreo "1" o-- "*" MedicionPulsacion : contiene
+SistemaMonitoreo "1" o-- "1" AnalizadorPulsaciones : utiliza
+SistemaMonitoreo "1" o-- "1" GestorReportes : utiliza
+SistemaMonitoreo "1" o-- "*" Paciente : gestiona
+SistemaMonitoreo "1" o-- "*" MedicionPulsacion : almacena
+SistemaMonitoreo "1" o-- "*" SesionMonitoreo : coordina
+AnalizadorPulsaciones ..> EstadisticasPulsacion : crea
+GestorReportes ..> Alerta : genera
+MedicionPulsacion ..> TipoAnomaliaCardiaca : clasifica
+SesionMonitoreo ..> EstadoSesion : tiene
+Alerta ..> TipoAlerta : categoriza
+Alerta ..> NivelPrioridad : prioriza
+
+@enduml

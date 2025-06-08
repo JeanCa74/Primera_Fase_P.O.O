@@ -1,0 +1,7 @@
+export enum TipoAnomaliaCardiaca {
+    NORMAL = "NORMAL",
+    TAQUICARDIA = "TAQUICARDIA",
+    BRADICARDIA = "BRADICARDIA",
+    ARRITMIA = "ARRITMIA",
+    CRITICA = "CRITICA"
+}
